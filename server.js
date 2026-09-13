@@ -3,6 +3,8 @@
 //  - sert les fichiers du dossier public/ (la page d'abonnement)
 //  - expose la clé publique VAPID à la page
 //  - enregistre chaque nouvel abonnement dans subscriptions.json
+//  - expose un point d'entrée sécurisé pour déclencher la vérification
+//    quotidienne depuis un service externe gratuit (cron-job.org)
 //
 // À lancer avec : VAPID_PUBLIC_KEY=... node server.js
 
@@ -57,6 +59,29 @@ function serveStatic(req, res) {
 }
 
 const server = http.createServer((req, res) => {
+  if (req.method === "GET" && req.url.startsWith("/api/run-check")) {
+    const reqUrl = new URL(req.url, `http://${req.headers.host}`);
+    const secret = reqUrl.searchParams.get("secret");
+
+    if (!process.env.CHECK_SECRET || secret !== process.env.CHECK_SECRET) {
+      res.writeHead(403, { "Content-Type": "application/json" });
+      return res.end(JSON.stringify({ ok: false, error: "Clé secrète invalide" }));
+    }
+
+    const { runCheck } = require("./check-calendar");
+    runCheck()
+      .then((result) => {
+        res.writeHead(200, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: true, result }));
+      })
+      .catch((err) => {
+        console.error("Erreur lors de la vérification :", err);
+        res.writeHead(500, { "Content-Type": "application/json" });
+        res.end(JSON.stringify({ ok: false, error: err.message }));
+      });
+    return;
+  }
+
   if (req.method === "GET" && req.url === "/api/vapid-public-key") {
     res.writeHead(200, { "Content-Type": "application/json" });
     return res.end(JSON.stringify({ publicKey: process.env.VAPID_PUBLIC_KEY || "" }));
