@@ -15,8 +15,11 @@ const {
   excludeVacances,
 } = require("./parseCalendar");
 const { sendNotificationToAll } = require("./sendNotifications");
+const { sendEmailToAll } = require("./sendEmails");   // ← ajout
+await sendEmailToAll(events, DAYS_AHEAD);
 
-const DAYS_AHEAD = 4;
+const DAYS_AHEAD = 4;   // ← était 4
+
 
 async function fetchEvents(year, month) {
   const url = getCalendarUrl(year, month);
