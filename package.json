@@ -1,0 +1,16 @@
+{
+  "name": "calendrier-club-photo",
+  "version": "1.0.0",
+  "description": "Alertes iPhone pour le calendrier du Photo Club Lucéen",
+  "main": "server.js",
+  "scripts": {
+    "test": "node test.js",
+    "start": "node server.js",
+    "check": "node check-calendar.js",
+    "generate-vapid-keys": "node generate-vapid-keys.js"
+  },
+  "dependencies": {
+    "web-push": "^3.6.7"
+  },
+  "license": "ISC"
+}
