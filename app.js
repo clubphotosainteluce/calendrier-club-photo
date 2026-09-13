@@ -1,4 +1,4 @@
-// app.js
+// public/app.js
 const btn = document.getElementById("subscribeBtn");
 const status = document.getElementById("status");
 
