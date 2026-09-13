@@ -30,7 +30,7 @@ async function fetchEvents(year, month) {
   return extractEvents(text);
 }
 
-async function main() {
+async function runCheck() {
   const today = new Date();
   today.setHours(0, 0, 0, 0);
 
@@ -54,8 +54,9 @@ async function main() {
   const matches = excludeVacances(getEventsInDays(allEvents, today, DAYS_AHEAD));
 
   if (matches.length === 0) {
-    console.log(`Aucun événement le ${in2Days.toLocaleDateString("fr-FR")}. Rien à envoyer.`);
-    return;
+    const msg = `Aucun événement le ${in2Days.toLocaleDateString("fr-FR")}. Rien à envoyer.`;
+    console.log(msg);
+    return { sent: 0, message: msg };
   }
 
   for (const event of matches) {
@@ -69,9 +70,17 @@ async function main() {
       event.url || "http://clubphotoluceen.wifeo.com/service-calendrier.html"
     );
   }
+
+  return { sent: matches.length, events: matches.map((e) => e.title) };
 }
 
-main().catch((err) => {
-  console.error("Erreur lors de la vérification du calendrier :", err);
-  process.exit(1);
-});
+module.exports = { runCheck };
+
+// Permet aussi de lancer ce fichier directement en ligne de commande
+// (ex. npm run check), en plus de l'utiliser comme module depuis server.js.
+if (require.main === module) {
+  runCheck().catch((err) => {
+    console.error("Erreur lors de la vérification du calendrier :", err);
+    process.exit(1);
+  });
+}
