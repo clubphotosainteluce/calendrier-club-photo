@@ -16,7 +16,7 @@ const {
 } = require("./parseCalendar");
 const { sendNotificationToAll } = require("./sendNotifications");
 
-const DAYS_AHEAD = 2;
+const DAYS_AHEAD = 4;
 
 async function fetchEvents(year, month) {
   const url = getCalendarUrl(year, month);
